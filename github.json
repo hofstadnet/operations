@@ -274,20 +274,7 @@
       "visibility": "public",
       "settings": {
         "description": "Standardfiler for hofstadnet"
-      },
-      "rulesets": {
-        "Main protection": {
-          "extends": "main",
-          "rules": {
-            "pull_request": { "dismiss_stale_reviews_on_push": false },
-            "required_status_checks": false,
-            "code_scanning": false
-          }
-        }
-      },
-      "manual": [
-        "Regelsettet krever ingen sjekker ennå. Når sikkerhetssjekkene ligger på main, legges dependency-review, workflow-security og CodeQL inn her."
-      ]
+      }
     },
     "operations": {
       "visibility": "public",

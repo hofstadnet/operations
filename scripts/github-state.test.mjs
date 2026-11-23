@@ -165,8 +165,8 @@ test("github.json i repoet er gyldig, og standardverdiene slås sammen riktig", 
   assert.deepEqual(Object.keys(status.rules), ["deletion", "non_fast_forward"]);
   assert.equal(status.extends, undefined);
   const dotgithub = expandRepo(config, ".github").rulesets["Main protection"];
-  assert.equal(dotgithub.rules.required_status_checks, undefined);
-  assert.equal(dotgithub.rules.code_scanning, undefined);
+  assert.deepEqual(dotgithub.rules.required_status_checks.required_status_checks, ["dependency-review", "workflow-security"]);
+  assert.ok(dotgithub.rules.code_scanning);
 });
 
 test("sikkerhetsoppsettet i organisasjonen: avvik og ukjente oppsett er manuelle", () => {

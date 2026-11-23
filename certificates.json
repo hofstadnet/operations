@@ -1,0 +1,11 @@
+{
+  "_about": "Sertifikatene som er ventet for domenet. .github/workflows/certificate-check.yml lager en sak for hvert sertifikat i Certificate Transparency-loggene som har en annen utsteder eller et navn som ikke står her. issuers sammenlignes med organisasjonen (O=) i utstederen: de tre som står i CAA for domenet (letsencrypt.org, pki.goog, ssl.com i hofstadnet-web/infra/hofstad.net/terraform.tfvars), og Sectigo (COMODO) og DigiCert, som Cloudflare legger til i CAA av seg selv. names er navnene i dagens sertifikater: domenet og www (fra Cloudflare), status (GitHub Pages) og ha.hofstad.net (eget sertifikat fra Let's Encrypt).",
+  "domain": "hofstad.net",
+  "issuers": ["Let's Encrypt", "Google Trust Services", "SSL Corporation", "Sectigo", "COMODO", "DigiCert"],
+  "names": [
+    "hofstad.net", "*.hofstad.net",
+    "www.hofstad.net", "*.www.hofstad.net",
+    "status.hofstad.net",
+    "ha.hofstad.net"
+  ]
+}

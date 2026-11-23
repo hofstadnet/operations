@@ -1,0 +1,38 @@
+{
+  "_about": "Alt i hofstadnet som utløper: tokens, security.txt og domenet. Bare navn og datoer, aldri verdier. .github/workflows/expiry.yml sjekker hver mandag og lager en sak når noe utløper innen «notify_days» (45 hvis ikke satt). Når noe er fornyet: sett ny dato her i en pull request, så lukkes saken av seg selv. expires: null = utløper ikke, eller ukjent (står i «note»).",
+  "items": [
+    {
+      "name": "Cloudflare-token «hofstadnet-tofu»",
+      "used_by": "hofstadnet-web → Secrets → CLOUDFLARE_API_TOKEN (OpenTofu plan og apply for hofstad.net, token-expiry.yml)",
+      "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 1",
+      "expires": "2027-11-22"
+    },
+    {
+      "name": "Cloudflare R2-token «hofstadnet-tofu-state» (lese og skrive)",
+      "used_by": "hofstadnet-web → Secrets → R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (state for OpenTofu i bøtta hofstadnet-tofu)",
+      "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 2",
+      "expires": "2027-11-22"
+    },
+    {
+      "name": "Expires i security.txt for hofstad.net",
+      "used_by": "hofstadnet-web public/.well-known/security.txt (RFC 9116: fila skal ikke brukes etter datoen)",
+      "renew": "Sett ny Expires (høyst ett år fram) i hofstadnet-web public/.well-known/security.txt i en pull request. scripts/check-security-txt.mjs kontrollerer fila",
+      "expires": "2027-11-21"
+    },
+    {
+      "name": "Domenet hofstad.net",
+      "used_by": "Dynadot (registrar). Navnetjenerne peker til Cloudflare, og DS-posten for DNSSEC står der",
+      "renew": "Dynadot → My Domains → hofstad.net → Renew. Slå gjerne på automatisk fornyelse",
+      "expires": "2027-06-30",
+      "notify_days": 90,
+      "note": "Utløpsdatoen er fra RDAP (https://rdap.org/domain/hofstad.net)."
+    },
+    {
+      "name": "Cloudflare-token «hofstadnet-web-builds»",
+      "used_by": "Workers Builds for hofstadnet-web (publisering fra main og forhåndsvisninger)",
+      "renew": "Styres av Workers Builds. hofstadnet-web docs/security.md «Tilganger og nøkler»",
+      "expires": null,
+      "note": "Utløper ikke: brukertoken uten utløpsdato, fordi publiseringen ellers ville stoppet."
+    }
+  ]
+}

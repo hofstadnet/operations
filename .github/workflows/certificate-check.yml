@@ -1,0 +1,98 @@
+name: Certificate check
+
+# Følger med på sertifikatene for domenet i Certificate Transparency-loggene (via Cert Spotter), hver dag. Et
+# sertifikat fra en utsteder eller for et navn som ikke står i certificates.json, gir én sak per sertifikat. Vanlige
+# fornyelser fra kjente utstedere for kjente navn gir ingen sak. Feiler oppslaget, kommenteres det på én egen sak.
+# Bare GITHUB_TOKEN, ingen nøkler. På pull requests kontrolleres bare certificates.json.
+
+on:
+  schedule:
+    - cron: "23 5 * * *" # hver dag 05:23 UTC
+  workflow_dispatch:
+  pull_request:
+    paths: [certificates.json, scripts/certificate-check.mjs, .github/workflows/certificate-check.yml]
+
+permissions: {}
+
+concurrency:
+  group: certificate-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-certificates:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: node --check scripts/certificate-check.mjs
+      - run: node scripts/certificate-check.mjs --validate
+
+  certificate-check:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Hent sertifikatene
+        id: fetch
+        run: |
+          set +e
+          node scripts/certificate-check.mjs > "$RUNNER_TEMP/unexpected.jsonl" 2> "$RUNNER_TEMP/log.txt"
+          code=$?
+          set -e
+          cat "$RUNNER_TEMP/log.txt"
+          cat "$RUNNER_TEMP/log.txt" >> "$GITHUB_STEP_SUMMARY"
+          echo "failed=$([ "$code" -ne 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Lag saker
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FAILED: ${{ steps.fetch.outputs.failed }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -o pipefail
+          failtitle="Sertifikatkontrollen feilet"
+          f=$(gh issue list --state open --search "in:title \"$failtitle\"" --json number,title --jq "map(select(.title == \"$failtitle\")) | .[0].number // empty")
+          if [ "$FAILED" = true ]; then
+            if [ -n "$f" ]; then gh issue comment "$f" --body "Feilet igjen: $RUN_URL"
+            else gh issue create --title "$failtitle" --body "Oppslaget i Certificate Transparency-loggene feilet: $RUN_URL
+
+          Saken lukkes av seg selv når kontrollen går igjen."; fi
+            exit 1
+          fi
+          [ -n "$f" ] && gh issue close "$f" --comment "Kontrollen går igjen: $RUN_URL"
+          while IFS= read -r c; do
+            [ -z "$c" ] && continue
+            sha=$(jq -r .sha256 <<< "$c")
+            title="Uventet sertifikat ${sha:0:16}"
+            n=$(gh issue list --state all --search "in:title \"$title\"" --json number,title --jq "map(select(.title == \"$title\")) | .[0].number // empty")
+            [ -n "$n" ] && continue
+            {
+              echo "Et sertifikat i Certificate Transparency-loggene passer ikke med \`certificates.json\`."
+              echo
+              echo "| | |"
+              echo "|---|---|"
+              echo "| Utsteder | $(jq -r .issuer <<< "$c")$(jq -r 'if .unknownIssuer then " **(ukjent)**" else "" end' <<< "$c") |"
+              echo "| Navn | $(jq -r '.names | join(", ")' <<< "$c") |"
+              echo "| Ukjente navn | $(jq -r 'if (.unknownNames|length) > 0 then (.unknownNames | join(", ")) else "–" end' <<< "$c") |"
+              echo "| Gyldig | $(jq -r '.notBefore[0:10] + " – " + .notAfter[0:10]' <<< "$c") |"
+              echo "| SHA-256 | \`$sha\` |"
+              echo
+              echo "Se sertifikatet: https://crt.sh/?sha256=$sha"
+              echo
+              echo "Er sertifikatet ventet (en ny utsteder i Cloudflare eller et nytt underdomene), legg det til i \`certificates.json\` og lukk saken. Er det ikke ventet, kan noen ha fått et sertifikat for domenet: sjekk DNS og kontoene hos Cloudflare og GitHub."
+            } > "$RUNNER_TEMP/body.md"
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          done < "$RUNNER_TEMP/unexpected.jsonl"

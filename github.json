@@ -1,0 +1,313 @@
+{
+  "_about": "Ønsket oppsett for GitHub-organisasjonen og hvert repo. scripts/apply-settings.mjs setter det (plan først, endringer bare med --apply), og «Audit» (scripts/audit.mjs) kontrollerer det hver mandag. Et repo i organisasjonen som ikke står her, meldes som avvik. Hvert repo får defaults.all, så defaults.public eller defaults.private, og til slutt det som står på repoet selv. Regelsett med «extends» bygger på malen i «rulesets»; regler har regeltypen som nøkkel, og false fjerner en regel eller et regelsett fra malen. En påkrevd sjekk som bare er et navn, kommer fra GitHub Actions (integration_id 15368). Apper i unntak oppgis med slug og roller med navn; id-ene slås opp når skriptet kjøres. Variabler står med verdi (de er ikke hemmelige). Hemmeligheter står bare med navn, og verdiene settes for hånd. «manual» er det API-et ikke kan sette. Organisasjonen er på GitHub Free: regelsett for hele organisasjonen finnes ikke, og regelsett og miljøer med hemmeligheter virker bare i offentlige repoer.",
+  "org": {
+    "login": "hofstadnet",
+    "settings": {
+      "default_repository_permission": "read",
+      "members_can_create_repositories": false,
+      "members_can_fork_private_repositories": false,
+      "web_commit_signoff_required": false
+    },
+    "check_only": {
+      "two_factor_requirement_enabled": true
+    },
+    "actions": {
+      "enabled_repositories": "all",
+      "allowed_actions": "all",
+      "sha_pinning_required": true
+    },
+    "workflow": {
+      "default_workflow_permissions": "read",
+      "can_approve_pull_request_reviews": false
+    },
+    "teams": {
+      "maintainers": {
+        "description": "Vedlikeholder repoene i hofstadnet",
+        "privacy": "closed",
+        "min_members": 1
+      }
+    },
+    "code_security_configurations": {
+      "hofstadnet-org-config-1": {
+        "_about": "Sikkerhetsoppsettet for alle repoene, håndhevet (enforced) og standard for nye repoer. Privat rapportering av sårbarheter står som not_set her og slås på i hvert repo.",
+        "advanced_security": "enabled",
+        "dependency_graph": "enabled",
+        "dependabot_alerts": "enabled",
+        "dependabot_security_updates": "enabled",
+        "code_scanning_default_setup": "not_set",
+        "secret_scanning": "enabled",
+        "secret_scanning_push_protection": "enabled",
+        "secret_scanning_non_provider_patterns": "enabled",
+        "secret_scanning_validity_checks": "enabled",
+        "private_vulnerability_reporting": "not_set",
+        "enforcement": "enforced",
+        "default_for_new_repos": "all"
+      }
+    },
+    "apps": {
+      "claude": {
+        "_review": "Til gjennomgang: har tilgang til alle repoene og bred skrivetilgang (også repository_creation og repository_hooks).",
+        "repository_selection": "all",
+        "permissions": { "actions": "write", "administration": "read", "checks": "write", "contents": "write", "discussions": "write", "issues": "write", "members": "read", "merge_queues": "read", "metadata": "read", "pull_requests": "write", "repository_creation": "write", "repository_hooks": "write", "statuses": "read", "vulnerability_alerts": "read", "workflows": "write" }
+      },
+      "chatgpt-codex-connector": {
+        "_review": "Til gjennomgang: har tilgang til alle repoene.",
+        "repository_selection": "all",
+        "permissions": { "actions": "write", "checks": "read", "contents": "write", "issues": "write", "metadata": "read", "pull_requests": "write", "statuses": "read", "workflows": "write" }
+      },
+      "cursor": {
+        "repository_selection": "selected",
+        "permissions": { "actions": "write", "administration": "read", "checks": "write", "contents": "write", "deployments": "read", "discussions": "write", "issues": "write", "members": "read", "merge_queues": "write", "metadata": "read", "organization_custom_org_roles": "read", "organization_custom_properties": "read", "organization_custom_roles": "read", "packages": "read", "pages": "read", "pull_requests": "write", "statuses": "read", "workflows": "write" }
+      },
+      "cloudflare-workers-and-pages": {
+        "repository_selection": "selected",
+        "permissions": { "administration": "write", "checks": "write", "contents": "write", "deployments": "write", "metadata": "read", "pull_requests": "write" }
+      },
+      "hofstadnet-audit": {
+        "repository_selection": "all",
+        "permissions": { "administration": "read", "members": "read", "metadata": "read", "organization_administration": "read" }
+      }
+    },
+    "variables": {},
+    "secrets": [],
+    "dependabot_secrets": [],
+    "manual": [
+      "Tofaktor er påkrevd (two_factor_requirement_enabled): kan bare leses med API-et. Slås på under Settings → Authentication security.",
+      "Medlemmene i teamet maintainers: legges til for hånd. Skriptet sjekker bare at teamet har minst ett medlem.",
+      "GitHub-appene: installasjon, hvilke repoer de har tilgang til, og rettighetene. API-et kan ikke installere apper eller endre utvalget av repoer. Skriptet sammenligner tilgangstype (alle eller utvalgte) og rettighetene med org.apps.",
+      "Appen cursor skal bare ha tilgang til utvalgte repoer (Only select repositories), ikke alle.",
+      "Appene claude og chatgpt-codex-connector har tilgang til alle repoene. Det er slik de er satt opp, men tilgangen bør gjennomgås.",
+      "Sikkerhetsoppsettet hofstadnet-org-config-1: endres under Settings → Advanced Security → Configurations. Skriptet sammenligner feltene i org.code_security_configurations og kobler repoene til oppsettet.",
+      "Verifisert domene for Pages (hofstad.net): Settings → Pages → Verified domains. TXT-posten står i hofstadnet-web/infra/.",
+      "Verdiene til hemmelighetene: settes med gh secret set. Skriptet melder hvilke navn som mangler."
+    ]
+  },
+  "defaults": {
+    "all": {
+      "settings": {
+        "is_template": false,
+        "homepage": null,
+        "allow_merge_commit": true,
+        "allow_squash_merge": true,
+        "allow_rebase_merge": true,
+        "allow_auto_merge": true,
+        "delete_branch_on_merge": true,
+        "allow_update_branch": true,
+        "has_issues": true,
+        "has_wiki": false,
+        "has_projects": false,
+        "has_discussions": false,
+        "web_commit_signoff_required": false
+      },
+      "actions": {
+        "enabled": true,
+        "allowed_actions": "all",
+        "sha_pinning_required": true
+      },
+      "workflow": {
+        "default_workflow_permissions": "read",
+        "can_approve_pull_request_reviews": false
+      },
+      "teams": { "maintainers": "admin" },
+      "collaborators": {},
+      "variables": {},
+      "secrets": [],
+      "dependabot_secrets": [],
+      "environments": {},
+      "pages": null
+    },
+    "public": {
+      "security": {
+        "vulnerability_alerts": true,
+        "dependabot_security_updates": true,
+        "secret_scanning": true,
+        "secret_scanning_push_protection": true,
+        "private_vulnerability_reporting": true,
+        "code_security_configuration": "hofstadnet-org-config-1"
+      },
+      "rulesets": {
+        "Main protection": { "extends": "main" }
+      }
+    },
+    "private": {
+      "security": {
+        "vulnerability_alerts": true,
+        "dependabot_security_updates": true,
+        "secret_scanning": false,
+        "secret_scanning_push_protection": false,
+        "code_security_configuration": "hofstadnet-org-config-1"
+      },
+      "rulesets": {
+        "Main protection": { "extends": "main", "rules": { "code_scanning": false } }
+      }
+    },
+    "environment": {
+      "branches": ["main"],
+      "reviewers": [],
+      "can_admins_bypass": true,
+      "wait_timer": 0,
+      "variables": {},
+      "secrets": []
+    }
+  },
+  "rulesets": {
+    "main": {
+      "target": "branch",
+      "enforcement": "active",
+      "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
+      "bypass_actors": [{ "role": "admin", "mode": "pull_request" }],
+      "rules": {
+        "deletion": {},
+        "non_fast_forward": {},
+        "pull_request": {
+          "required_approving_review_count": 0,
+          "dismiss_stale_reviews_on_push": true,
+          "require_code_owner_review": false,
+          "require_last_push_approval": false,
+          "required_review_thread_resolution": true,
+          "allowed_merge_methods": ["merge", "squash", "rebase"]
+        },
+        "required_status_checks": {
+          "strict_required_status_checks_policy": false,
+          "do_not_enforce_on_create": false,
+          "required_status_checks": ["dependency-review", "workflow-security"]
+        },
+        "code_scanning": {
+          "code_scanning_tools": [{ "tool": "CodeQL", "security_alerts_threshold": "high_or_higher", "alerts_threshold": "errors" }]
+        }
+      }
+    }
+  },
+  "repos": {
+    "hofstadnet-web": {
+      "visibility": "public",
+      "settings": {
+        "description": "Kildekoden til hofstad.net: statisk side i Astro på Cloudflare Workers",
+        "homepage": "https://hofstad.net"
+      },
+      "rulesets": {
+        "Main protection": {
+          "extends": "main",
+          "rules": {
+            "pull_request": { "dismiss_stale_reviews_on_push": false },
+            "required_status_checks": {
+              "strict_required_status_checks_policy": true,
+              "required_status_checks": ["build", "dependency-review", "workflow-security"]
+            }
+          }
+        }
+      },
+      "variables": { "TOFU_ENABLED": "true" },
+      "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"],
+      "environments": {
+        "cloudflare": {
+          "reviewers": [{ "team": "maintainers" }],
+          "prevent_self_review": false
+        }
+      },
+      "manual": [
+        "Appen cloudflare-workers-and-pages (Workers Builds) må ha tilgang til hofstadnet-web i installasjonen."
+      ]
+    },
+    "status": {
+      "visibility": "public",
+      "settings": {
+        "description": "Oppetid og statusside for hofstad.net (Upptime)"
+      },
+      "rulesets": {
+        "Main protection": {
+          "_about": "Upptime skriver direkte til main, så regelsettet stopper bare sletting og force-push, og bygger ikke på malen.",
+          "extends": false,
+          "target": "branch",
+          "enforcement": "active",
+          "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
+          "bypass_actors": [],
+          "rules": { "deletion": {}, "non_fast_forward": {} }
+        }
+      },
+      "environments": {
+        "github-pages": { "branches": ["gh-pages"] },
+        "status": {}
+      },
+      "pages": {
+        "build_type": "legacy",
+        "source": { "branch": "gh-pages", "path": "/" },
+        "cname": "status.hofstad.net",
+        "https_enforced": true
+      },
+      "manual": [
+        "Miljøet status er for en egen GitHub-app for Upptime (bare main): app-ID-en blir en variabel og nøkkelen en hemmelighet i miljøet, og står her når appen finnes.",
+        "Egen 404-side for Pages (custom_404) kommer fra innholdet i gh-pages og settes ikke med API-et."
+      ]
+    },
+    "guidelines": {
+      "visibility": "public",
+      "settings": {
+        "description": "Felles retningslinjer for repoer og kodeagenter: navngivning, dokumentasjon, sikkerhet, infrastruktur og UX"
+      },
+      "rulesets": {
+        "Main protection": {
+          "extends": "main",
+          "rules": {
+            "required_status_checks": { "required_status_checks": ["dependency-review", "workflow-security", "links"] }
+          }
+        }
+      }
+    },
+    "repo-template": {
+      "visibility": "public",
+      "settings": {
+        "description": "Mal for nye repo i hofstadnet",
+        "is_template": true
+      },
+      "rulesets": {
+        "Main protection": {
+          "extends": "main",
+          "rules": {
+            "pull_request": { "dismiss_stale_reviews_on_push": false },
+            "required_status_checks": { "strict_required_status_checks_policy": true }
+          }
+        }
+      }
+    },
+    ".github": {
+      "visibility": "public",
+      "settings": {
+        "description": "Standardfiler for hofstadnet"
+      },
+      "rulesets": {
+        "Main protection": {
+          "extends": "main",
+          "rules": {
+            "pull_request": { "dismiss_stale_reviews_on_push": false },
+            "required_status_checks": false,
+            "code_scanning": false
+          }
+        }
+      },
+      "manual": [
+        "Regelsettet krever ingen sjekker ennå. Når sikkerhetssjekkene ligger på main, legges dependency-review, workflow-security og CodeQL inn her."
+      ]
+    },
+    "operations": {
+      "visibility": "public",
+      "settings": {
+        "description": "Drift av hofstadnet: GitHub-innstillinger som kode, kontroll av oppsettet, sertifikater og utløpsdatoer"
+      },
+      "rulesets": {
+        "Main protection": {
+          "extends": "main",
+          "rules": {
+            "required_status_checks": { "required_status_checks": ["validate", "dependency-review", "workflow-security"] }
+          }
+        }
+      },
+      "environments": {
+        "audit": { "secrets": ["AUDIT_APP_PRIVATE_KEY"] }
+      },
+      "manual": [
+        "Appen hofstadnet-audit (HofstadNET Audit) må være installert på alle repoene (All repositories), så nye repoer også kontrolleres. Client ID settes som repovariabelen AUDIT_APP_CLIENT_ID, og legges da inn under «variables» her."
+      ]
+    }
+  }
+}

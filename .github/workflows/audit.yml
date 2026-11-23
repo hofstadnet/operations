@@ -1,0 +1,106 @@
+name: Audit
+
+# Kontrollerer hver mandag at organisasjonen og repoene følger github.json, med samme sammenligning som
+# scripts/apply-settings.mjs: innstillinger i organisasjonen og repoene, team og tilganger, apper, regelsett og påkrevde
+# sjekker, sikkerhetsinnstillinger, Actions og miljøene. Et repo som ikke står i github.json, meldes også. Avvikene
+# samles i én sak, som oppdateres hver uke og lukkes av seg selv når alt er i orden.
+#
+# Lesingen gjøres med et token fra GitHub-appen «HofstadNET Audit», som bare har lesetilgang (Administration,
+# Organization administration og Members) og er installert på alle repoene. Client ID står i repovariabelen
+# AUDIT_APP_CLIENT_ID og nøkkelen i miljøet «audit» (bare main). Saken lages med GITHUB_TOKEN i dette repoet. Det appen
+# ikke kan lese (hemmeligheter, variabler, Pages), hoppes over og står som merknad i saken. Jobben hoppes over så lenge
+# AUDIT_APP_CLIENT_ID ikke er satt.
+#
+# På pull requests kontrollerer jobben «validate» github.json og skriptene, uten nøkkel og uten nettverk. Den kjører på
+# alle pull requests, ikke bare når github.json eller scripts/ endres: «validate» er en påkrevd sjekk i regelsettet, så
+# uten den ville pull requests som ikke rører filene (f.eks. fra Dependabot), bli stående blokkert.
+
+on:
+  schedule:
+    - cron: "53 6 * * 1" # mandager 06:53 UTC
+  workflow_dispatch:
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: for f in scripts/*.mjs; do node --check "$f"; done
+      - name: Kontroller github.json
+        run: node scripts/apply-settings.mjs --validate
+      - name: Tester
+        run: node --test scripts/*.test.mjs
+
+  audit:
+    if: github.event_name != 'pull_request' && vars.AUDIT_APP_CLIENT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: audit
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Token for hele organisasjonen, med bare lesetilgang. Det varer én time og trekkes tilbake når jobben er ferdig.
+      - id: app
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        with:
+          client-id: ${{ vars.AUDIT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AUDIT_APP_PRIVATE_KEY }}
+          # Alle repoer med vilje: kontrollen skal også finne nye repoer. Tokenet har bare lesetilgang.
+          owner: ${{ github.repository_owner }} # zizmor: ignore[github-app]
+          permission-administration: read
+          permission-organization-administration: read
+          permission-members: read
+
+      - name: Kontroller grunnoppsettet
+        id: check
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          ORG: ${{ github.repository_owner }}
+        run: |
+          set +e
+          node scripts/audit.mjs > "$RUNNER_TEMP/audit.md"
+          code=$?
+          set -e
+          cat "$RUNNER_TEMP/audit.md" >> "$GITHUB_STEP_SUMMARY"
+          [ "$code" -le 1 ] || exit "$code"
+          echo "findings=$([ "$code" -eq 1 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Oppdater saken
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          FINDINGS: ${{ steps.check.outputs.findings }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="Avvik i grunnoppsettet"
+          n=$(gh issue list --state open --search "in:title \"$title\"" --json number,title --jq "map(select(.title == \"$title\")) | .[0].number // empty")
+          if [ "$FINDINGS" = true ]; then
+            {
+              echo "Den ukentlige kontrollen fant avvik fra grunnoppsettet i \`github.json\`."
+              echo
+              cat "$RUNNER_TEMP/audit.md"
+              echo
+              echo "Rett avviket med \`node scripts/apply-settings.mjs --apply\` (se README), eller oppdater \`github.json\` hvis grunnoppsettet skal endres. Saken lukkes av seg selv når kontrollen ikke finner noe. Kjøring: $RUN_URL"
+            } > "$RUNNER_TEMP/body.md"
+            if [ -n "$n" ]; then gh issue edit "$n" --body-file "$RUNNER_TEMP/body.md"; else gh issue create --title "$title" --body-file "$RUNNER_TEMP/body.md"; fi
+          elif [ -n "$n" ]; then
+            gh issue close "$n" --comment "Ingen avvik lenger: $RUN_URL"
+          fi

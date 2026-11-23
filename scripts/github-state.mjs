@@ -873,7 +873,7 @@ export function manualSteps(config) {
 
 // Skriver endringene som Markdown-tabell (for auditen).
 export function toTable(changes) {
-  const esc = (s) => s.replace(/\|/g, "\\|");
+  const esc = (s) => s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
   const rows = changes.flatMap((c) => c.what.map((w) => `| ${esc(c.where)} | ${esc(w)} |`));
   return `| Hvor | Avvik |\n|---|---|\n${rows.join("\n")}`;
 }

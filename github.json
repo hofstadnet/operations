@@ -202,12 +202,17 @@
         }
       },
       "variables": { "TOFU_ENABLED": "true" },
-      "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN_READ", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"],
+      "secrets": [],
       "environments": {
+        "tofu-plan": {
+          "_about": "OpenTofu plan, drift og token-expiry. Bare main, uten godkjenning. Lesetokenet til Cloudflare og R2-tokenet som bare kan lese state.",
+          "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN_READ", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"]
+        },
         "cloudflare": {
+          "_about": "OpenTofu apply. Bare main, etter godkjenning. Skrivetokenet til Cloudflare og R2-tokenet som kan skrive state.",
           "reviewers": [{ "team": "maintainers" }],
           "prevent_self_review": false,
-          "secrets": ["CLOUDFLARE_API_TOKEN"]
+          "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"]
         }
       },
       "manual": [

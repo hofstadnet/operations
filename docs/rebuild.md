@@ -56,7 +56,8 @@ lagret utenfor tjenestene, og innloggingen i passordbehandleren.
 1. **Sonen `hofstad.net`** legges til i kontoen, og navnetjenerne settes hos Dynadot. **Manuelt**: sonen og
    registraren er utenfor OpenTofu.
 2. **Nøkler for OpenTofu**, etter «Oppsett for en ny sone eller konto» i `infra/README.md` i hofstadnet-web: R2-bøtta
-   `hofstadnet-tofu` (privat), R2-tokenet `hofstadnet-tofu-state` (Object Read & Write på bare den bøtta),
+   `hofstadnet-tofu` (privat), R2-tokenene `hofstadnet-tofu-state` (Object Read & Write på bare den bøtta) og `hofstadnet-tofu-state-read`
+   (Object Read på bare den bøtta),
    Cloudflare-tokenet `hofstadnet-tofu` og passfrasen. **Manuelt**: koden skal ikke kunne lage sine egne nøkler. Sett
    de nye utløpsdatoene i `expiry.json`.
 3. **Hemmelighetene og `TOFU_ENABLED=true`** i hofstadnet-web (tabellen under), og «Run workflow» på
@@ -86,16 +87,19 @@ trenger CNAME-posten i `infra/` og det verifiserte domenet.
 
 ## 5. Hemmeligheter i GitHub
 
-Alle lages av eieren og lagres også i passordbehandleren. Navnene står i `github.json`.
+Alle lages av eieren og lagres også i passordbehandleren. Navnene står i `github.json`. Begge miljøene i
+hofstadnet-web tillater bare `main`, så ingen branch eller pull request får nøklene. R2-nøklene har samme navn i begge
+miljøene, men er to forskjellige tokens: `tofu-plan` kan bare lese state.
 
 | Repo | Hvor | Navn | Kilde |
 |---|---|---|---|
-| hofstadnet-web | repoet | `CLOUDFLARE_API_TOKEN_READ` | Cloudflare, kontotokenet `hofstadnet-tofu-read` (bare lesing, for plan og drift) |
-| hofstadnet-web | repoet | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2, tokenet `hofstadnet-tofu-state` |
-| hofstadnet-web | repoet | `TOFU_STATE_PASSPHRASE` | Passordbehandleren (krypterer state) |
-| hofstadnet-web | repoet | `ALERT_EMAIL` | Adressen for varsler fra Cloudflare, fra passordbehandleren |
+| hofstadnet-web | miljøet `tofu-plan` | `CLOUDFLARE_API_TOKEN_READ` | Cloudflare, kontotokenet `hofstadnet-tofu-read` (bare lesing, for plan, drift og tokenutløp) |
+| hofstadnet-web | miljøet `tofu-plan` | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2, tokenet `hofstadnet-tofu-state-read` (Object Read) |
+| hofstadnet-web | miljøet `cloudflare` | `CLOUDFLARE_API_TOKEN` | Cloudflare, kontotokenet `hofstadnet-tofu`. Bare apply, etter godkjenning fra teamet `maintainers` |
+| hofstadnet-web | miljøet `cloudflare` | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2, tokenet `hofstadnet-tofu-state` (Object Read & Write) |
+| hofstadnet-web | begge miljøene | `TOFU_STATE_PASSPHRASE` | Passordbehandleren (krypterer state) |
+| hofstadnet-web | begge miljøene | `ALERT_EMAIL` | Adressen for varsler fra Cloudflare, fra passordbehandleren |
 | hofstadnet-web | repoet (variabel) | `TOFU_ENABLED` = `true` | Slår på plan og apply |
-| hofstadnet-web | miljøet `cloudflare` | `CLOUDFLARE_API_TOKEN` | Cloudflare, kontotokenet `hofstadnet-tofu`. Bare apply, etter godkjenning fra teamet `maintainers`, bare `main` |
 | status | miljøet `github-pages` | (ingen) | Bare grenen `gh-pages` |
 | status | miljøet `status` (variabel) | `STATUS_APP_ID` | HofstadNET Status, App ID |
 | status | miljøet `status` | `STATUS_APP_PRIVATE_KEY` | HofstadNET Status, privat nøkkel (`.pem`), bare `main` |

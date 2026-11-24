@@ -56,7 +56,8 @@
         "permissions": { "actions": "write", "checks": "read", "contents": "write", "issues": "write", "metadata": "read", "pull_requests": "write", "statuses": "read", "workflows": "write" }
       },
       "cursor": {
-        "repository_selection": "selected",
+        "_review": "Til gjennomgang: har tilgang til alle repoene og bred skrivetilgang (også workflows). Begrenses til utvalgte repoer eller fjernes når valget av kodeagenter er tatt.",
+        "repository_selection": "all",
         "permissions": { "actions": "write", "administration": "read", "checks": "write", "contents": "write", "deployments": "read", "discussions": "write", "issues": "write", "members": "read", "merge_queues": "write", "metadata": "read", "organization_custom_org_roles": "read", "organization_custom_properties": "read", "organization_custom_roles": "read", "packages": "read", "pages": "read", "pull_requests": "write", "statuses": "read", "workflows": "write" }
       },
       "cloudflare-workers-and-pages": {
@@ -65,7 +66,7 @@
       },
       "hofstadnet-audit": {
         "repository_selection": "all",
-        "permissions": { "administration": "read", "members": "read", "metadata": "read", "organization_administration": "read" }
+        "permissions": { "actions_variables": "read", "administration": "read", "environments": "read", "members": "read", "metadata": "read", "organization_administration": "read", "pages": "read", "secrets": "read" }
       },
       "hofstadnet-status": {
         "repository_selection": "selected",
@@ -79,8 +80,7 @@
       "Tofaktor er påkrevd (two_factor_requirement_enabled): kan bare leses med API-et. Slås på under Settings → Authentication security.",
       "Medlemmene i teamet maintainers: legges til for hånd. Skriptet sjekker bare at teamet har minst ett medlem.",
       "GitHub-appene: installasjon, hvilke repoer de har tilgang til, og rettighetene. API-et kan ikke installere apper eller endre utvalget av repoer. Skriptet sammenligner tilgangstype (alle eller utvalgte) og rettighetene med org.apps.",
-      "Appen cursor skal bare ha tilgang til utvalgte repoer (Only select repositories), ikke alle.",
-      "Appene claude og chatgpt-codex-connector har tilgang til alle repoene. Det er slik de er satt opp, men tilgangen bør gjennomgås.",
+      "Appene claude, chatgpt-codex-connector og cursor har tilgang til alle repoene. Det er slik de er satt opp, men tilgangen bør gjennomgås.",
       "Sikkerhetsoppsettet hofstadnet-org-config-1: endres under Settings → Advanced Security → Configurations. Skriptet sammenligner feltene i org.code_security_configurations og kobler repoene til oppsettet.",
       "Verifisert domene for Pages (hofstad.net): Settings → Pages → Verified domains. TXT-posten står i hofstadnet-web/infra/.",
       "Verdiene til hemmelighetene: settes med gh secret set. Skriptet melder hvilke navn som mangler."

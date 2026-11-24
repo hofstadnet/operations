@@ -3,7 +3,13 @@
   "items": [
     {
       "name": "Cloudflare-token «hofstadnet-tofu»",
-      "used_by": "hofstadnet-web → Secrets → CLOUDFLARE_API_TOKEN (OpenTofu plan og apply for hofstad.net, token-expiry.yml)",
+      "used_by": "hofstadnet-web → miljøet cloudflare → CLOUDFLARE_API_TOKEN (OpenTofu apply for hofstad.net)",
+      "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 1",
+      "expires": "2027-11-22"
+    },
+    {
+      "name": "Cloudflare-token «hofstadnet-tofu-read» (bare lesing)",
+      "used_by": "hofstadnet-web → Secrets → CLOUDFLARE_API_TOKEN_READ (OpenTofu plan og drift for hofstad.net, token-expiry.yml)",
       "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 1",
       "expires": "2027-11-22"
     },

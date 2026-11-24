@@ -24,7 +24,7 @@ lagret utenfor tjenestene, og innloggingen i passordbehandleren.
 | GitHub-organisasjonen `hofstadnet` (Free) | Repoene, arbeidsflytene, Pages for statussiden |
 | Cloudflare-kontoen | Sonen `hofstad.net`, Workeren, Workers Builds, R2 (state for OpenTofu), Email Routing, Web Analytics, varsler |
 | Dynadot (registrar for `hofstad.net`) | Navnetjenerne fra Cloudflare og DS-posten for DNSSEC |
-| Passordbehandleren | Tokens, passfrasen for state, gjenopprettingskoder |
+| Passordbehandleren | Innloggingene, passfrasen for state, gjenopprettingskoder |
 
 ## 2. GitHub
 
@@ -87,7 +87,7 @@ trenger CNAME-posten i `infra/` og det verifiserte domenet.
 
 ## 5. Hemmeligheter i GitHub
 
-Alle lages av eieren og lagres også i passordbehandleren. Navnene står i `github.json`. Begge miljøene i
+Alle lages av eieren. Navnene står i `github.json`. Begge miljøene i
 hofstadnet-web tillater bare `main`, så ingen branch eller pull request får nøklene. R2-nøklene har samme navn i begge
 miljøene, men er to forskjellige tokens: `tofu-plan` kan bare lese state.
 
@@ -98,7 +98,7 @@ miljøene, men er to forskjellige tokens: `tofu-plan` kan bare lese state.
 | hofstadnet-web | miljøet `cloudflare` | `CLOUDFLARE_API_TOKEN` | Cloudflare, kontotokenet `hofstadnet-tofu`. Bare apply, etter godkjenning fra teamet `maintainers` |
 | hofstadnet-web | miljøet `cloudflare` | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2, tokenet `hofstadnet-tofu-state` (Object Read & Write) |
 | hofstadnet-web | begge miljøene | `TOFU_STATE_PASSPHRASE` | Passordbehandleren (krypterer state) |
-| hofstadnet-web | begge miljøene | `ALERT_EMAIL` | Adressen for varsler fra Cloudflare, fra passordbehandleren |
+| hofstadnet-web | begge miljøene | `ALERT_EMAIL` | Adressen for varsler fra Cloudflare |
 | hofstadnet-web | repoet (variabel) | `TOFU_ENABLED` = `true` | Slår på plan og apply |
 | status | miljøet `github-pages` | (ingen) | Bare grenen `gh-pages` |
 | status | miljøet `status` (variabel) | `STATUS_APP_ID` | HofstadNET Status, App ID |
@@ -107,6 +107,22 @@ miljøene, men er to forskjellige tokens: `tofu-plan` kan bare lese state.
 | operations | miljøet `audit` | `AUDIT_APP_PRIVATE_KEY` | HofstadNET Audit, privat nøkkel (`.pem`) |
 
 Byggetokenet `hofstadnet-web-builds` ligger i Cloudflare, ikke i GitHub.
+
+### Hva som lagres utenfor GitHub
+
+Bare `TOFU_STATE_PASSPHRASE` lagres i passordbehandleren, fordi den ikke kan lages på nytt: uten den kan state ikke
+dekrypteres, og alle ressursene må importeres på nytt. Tokens og app-nøkler lagres ikke noe annet sted. GitHub viser
+aldri verdien igjen, så trengs en verdi på nytt, for eksempel i et nytt miljø, lages en ny:
+
+| Hemmelighet | Slik lages en ny |
+|---|---|
+| Cloudflare-tokenene (`hofstadnet-tofu`, `hofstadnet-tofu-read`) | Rull tokenet under Manage Account → Account API Tokens, og sett verdien med `gh secret set … --env …`. Se «Fornye tokenene» i `docs/operations.md` i hofstadnet-web. |
+| R2-tokenene (`hofstadnet-tofu-state`, `hofstadnet-tofu-state-read`) | Det samme under R2 → Manage API tokens. Begge verdiene (`R2_ACCESS_KEY_ID` og `R2_SECRET_ACCESS_KEY`) settes på nytt. |
+| Privatnøklene til HofstadNET Audit og HofstadNET Status | Generate a private key på siden til appen, sett den nye `.pem`-filen med `gh secret set … --env … < fil.pem`, slett filen og den gamle nøkkelen. |
+| `ALERT_EMAIL` | Skrives inn på nytt. |
+
+Fordi tokenene bare finnes i GitHub og Cloudflare, er det færre steder de kan lekke fra. Ulempen er at de må rulles
+når de skal flyttes.
 
 ## 6. Kontroll
 

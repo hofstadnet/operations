@@ -9,13 +9,19 @@
     },
     {
       "name": "Cloudflare-token «hofstadnet-tofu-read» (bare lesing)",
-      "used_by": "hofstadnet-web → Secrets → CLOUDFLARE_API_TOKEN_READ (OpenTofu plan og drift for hofstad.net, token-expiry.yml)",
+      "used_by": "hofstadnet-web → miljøet tofu-plan → CLOUDFLARE_API_TOKEN_READ (OpenTofu plan og drift for hofstad.net, token-expiry.yml)",
       "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 1",
       "expires": "2027-11-22"
     },
     {
       "name": "Cloudflare R2-token «hofstadnet-tofu-state» (lese og skrive)",
-      "used_by": "hofstadnet-web → Secrets → R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (state for OpenTofu i bøtta hofstadnet-tofu)",
+      "used_by": "hofstadnet-web → miljøet cloudflare → R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (apply skriver state i bøtta hofstadnet-tofu)",
+      "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 2",
+      "expires": "2027-11-22"
+    },
+    {
+      "name": "Cloudflare R2-token «hofstadnet-tofu-state-read» (bare lesing)",
+      "used_by": "hofstadnet-web → miljøet tofu-plan → R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (plan og drift leser state i bøtta hofstadnet-tofu)",
       "renew": "hofstadnet-web docs/operations.md «Fornye tokenene», punkt 2",
       "expires": "2027-11-22"
     },

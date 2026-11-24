@@ -35,7 +35,7 @@ flowchart LR
 `apply-settings.mjs` leser hele organisasjonen, sammenligner med `github.json` og viser planen. Med `--apply` gjøres
 bare endringene merket «endres». Plassholdere som `${team:maintainers}` slås opp til id-er når kallet kjøres.
 
-## Audit
+## Revisjon
 
 ```mermaid
 flowchart LR

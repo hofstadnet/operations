@@ -1,4 +1,4 @@
-name: Certificate check
+name: Sertifikatsjekk
 
 # Følger med på sertifikatene for domenet i Certificate Transparency-loggene (via Cert Spotter), hver dag. Et
 # sertifikat fra en utsteder eller for et navn som ikke står i certificates.json, gir én sak per sertifikat. Vanlige

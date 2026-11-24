@@ -17,8 +17,8 @@ navn.
 | Fil | Hva |
 |---|---|
 | `github.json`, `scripts/apply-settings.mjs`, `scripts/github-state.mjs` | GitHub-innstillingene for organisasjonen og hvert repo som kode. Se [Innstillinger som kode](#innstillinger-som-kode) |
-| `scripts/audit.mjs`, `.github/workflows/audit.yml` | «Audit»: hver mandag sjekker den organisasjonen og hvert repo mot `github.json`, og holder én sak «Avvik i grunnoppsettet» oppdatert til alt er i orden. Leser med GitHub-appen «HofstadNET Audit» (bare lesetilgang). Jobben `validate` kontrollerer fila og kjører testene på alle pull requests |
-| `certificates.json`, `scripts/certificate-check.mjs`, `.github/workflows/certificate-check.yml` | «Certificate check»: hver dag leser den sertifikatene for hofstad.net i Certificate Transparency-loggene (Cert Spotter) og oppretter én sak for hvert sertifikat fra en utsteder eller for et navn som ikke står i `certificates.json`. Vanlige fornyelser gir ingen sak |
+| `scripts/audit.mjs`, `.github/workflows/audit.yml` | «Revisjon»: hver mandag sjekker den organisasjonen og hvert repo mot `github.json`, og holder én sak «Avvik i grunnoppsettet» oppdatert til alt er i orden. Leser med GitHub-appen «HofstadNET Audit» (bare lesetilgang). Jobben `validate` kontrollerer fila og kjører testene på alle pull requests |
+| `certificates.json`, `scripts/certificate-check.mjs`, `.github/workflows/certificate-check.yml` | «Sertifikatsjekk»: hver dag leser den sertifikatene for hofstad.net i Certificate Transparency-loggene (Cert Spotter) og oppretter én sak for hvert sertifikat fra en utsteder eller for et navn som ikke står i `certificates.json`. Vanlige fornyelser gir ingen sak |
 | `expiry.json`, `.github/workflows/expiry.yml` | «Utløper snart»: hver mandag oppretter den en sak når noe i `expiry.json` utløper innen 45 dager (90 for domenet), og lukker den når datoen er flyttet. Følg dette repoet (Issues) for å få e-posten |
 | `.github/workflows/security.yml` | `dependency-review` og zizmor på arbeidsflytene (`workflow-security`) |
 | `.github/workflows/code-scanning.yml` | CodeQL for skriptene og arbeidsflytene |
@@ -34,7 +34,7 @@ navn.
 Actions, `GITHUB_TOKEN`), teamet `maintainers`, sikkerhetsoppsettet `hofstadnet-org-config-1`, appene og, for hvert
 repo, innstillingene, sikkerhet, Actions, tilgangen for teamet, regelsettet for `main` med påkrevde sjekker og
 unntak, miljøene med tillatte branches og godkjennere, variablene og Pages. Hemmeligheter står bare med navn. Den samme
-fila brukes av `scripts/apply-settings.mjs`, som setter innstillingene, og av «Audit», som kontrollerer dem hver
+fila brukes av `scripts/apply-settings.mjs`, som setter innstillingene, og av «Revisjon», som kontrollerer dem hver
 mandag. Begge bruker lesingen og sammenligningen i `scripts/github-state.mjs`, så de er alltid enige om hva som er
 avvik.
 
@@ -100,7 +100,7 @@ auditen, og overskrives ved neste `--apply` hvis fila ikke er oppdatert.
 
 ## Audit-appen
 
-Auditen leser innstillinger i hvert repo, noe `GITHUB_TOKEN` ikke kan. Den bruker GitHub-appen «HofstadNET Audit»:
+Revisjonen leser innstillinger i hvert repo, noe `GITHUB_TOKEN` ikke kan. Den bruker GitHub-appen «HofstadNET Audit»:
 
 1. hofstadnet → Settings → Developer settings → GitHub Apps → New GitHub App. Navn «HofstadNET Audit», hjemmeside
    `https://github.com/hofstadnet`, Webhook «Active» av, «Only on this account».
@@ -113,11 +113,11 @@ Auditen leser innstillinger i hvert repo, noe `GITHUB_TOKEN` ikke kan. Den bruke
    den også inn under `repos.operations.variables` i `github.json`.
 5. Settings → Environments → `audit` (bare `main`) → hemmeligheten `AUDIT_APP_PRIVATE_KEY` (hele `.pem`-filen). Slett
    deretter `.pem`-filen.
-6. Actions → «Audit» → «Run workflow».
+6. Actions → «Revisjon» → «Run workflow».
 
 Jobben hoppes over så lenge `AUDIT_APP_CLIENT_ID` ikke er satt, så sjekkene er grønne uten appen.
 
-Appen har bevisst ikke tilgang til hemmeligheter, variabler og Pages. Auditen hopper over dem og skriver det som
+Appen har bevisst ikke tilgang til hemmeligheter, variabler og Pages. Revisjonen hopper over dem og skriver det som
 merknad i saken. De kontrolleres når en eier kjører `node scripts/apply-settings.mjs`.
 
 ## Når et token eller en dato fornyes

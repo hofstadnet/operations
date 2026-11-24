@@ -1,4 +1,4 @@
-name: Security checks
+name: Sikkerhetssjekker
 
 # Sikkerhetssjekker på pull requests. Jobbnavnene (dependency-review, workflow-security) er
 # statussjekkene som regelsettet «Main protection» i github.json krever, så ikke gi dem nytt navn uten å oppdatere fila.

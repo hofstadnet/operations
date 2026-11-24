@@ -7,12 +7,12 @@ grunnen.
 | Del | Kode | Settes med |
 |---|---|---|
 | GitHub: organisasjon, team, repoer, regelsett, miljøer, variabler | `github.json` | `node scripts/apply-settings.mjs --apply` |
-| Cloudflare: DNS, CAA, DNSSEC, soneinnstillinger, WAF, rate limiting, videresending fra www, roboter, varsler | `infra/hofstad.net/` i hofstadnet-web | «Infrastructure» (`infra.yml`) i hofstadnet-web, apply etter merge og godkjenning |
+| Cloudflare: DNS, CAA, DNSSEC, soneinnstillinger, WAF, rate limiting, videresending fra www, roboter, varsler | `infra/hofstad.net/` i hofstadnet-web | «Infrastruktur» (`infra.yml`) i hofstadnet-web, apply etter merge og godkjenning |
 | Workeren `hofstadnet-web` og domenene hofstad.net og www.hofstad.net | `wrangler.jsonc` i hofstadnet-web | Workers Builds, ved hver endring i `main` |
 | Sikkerhetshoder, CSP og videresendinger på siden | `public/_headers` og `public/_redirects` i hofstadnet-web | Workers Builds |
 | Statussiden status.hofstad.net | `.upptimerc.yml` i status | Upptime og GitHub Pages i status |
 | Utløpsdatoer for tokens, `security.txt` og domenet | `expiry.json` | «Utløper snart» varsler |
-| Kontroll av alt over | `github.json`, `certificates.json`, `infra/` | «Audit», «Certificate check», avvikssjekken i `infra.yml` |
+| Kontroll av alt over | `github.json`, `certificates.json`, `infra/` | «Revisjon», «Sertifikatsjekk», avvikssjekken i `infra.yml` |
 
 ## 1. Kontoer (manuelt)
 
@@ -61,7 +61,7 @@ lagret utenfor tjenestene, og innloggingen i passordbehandleren.
    Cloudflare-tokenet `hofstadnet-tofu` og passfrasen. **Manuelt**: koden skal ikke kunne lage sine egne nøkler. Sett
    de nye utløpsdatoene i `expiry.json`.
 3. **Hemmelighetene og `TOFU_ENABLED=true`** i hofstadnet-web (tabellen under), og «Run workflow» på
-   «Infrastructure». Apply lager DNS-postene, CAA, DNSSEC, soneinnstillingene, WAF-regelen, rate limiting,
+   «Infrastruktur». Apply lager DNS-postene, CAA, DNSSEC, soneinnstillingene, WAF-regelen, rate limiting,
    videresendingen fra www og varslene. Finnes ressursene allerede, importeres de først med en midlertidig
    `importer.tf` (se `infra/README.md`).
 4. **DS-posten** fra `tofu output dnssec_ds` settes hos Dynadot (Domain → DNSSEC). **Manuelt**: registraren har ikke
@@ -127,8 +127,8 @@ når de skal flyttes.
 ## 6. Kontroll
 
 1. `node scripts/apply-settings.mjs --check` gir ingen endringer utover det som er manuelt.
-2. «Audit», «Certificate check» og «Utløper snart» her, og «Infrastructure» og «Build» i hofstadnet-web, kjøres med
-   «Run workflow» og går grønt. Planen i «Infrastructure» viser «No changes».
+2. «Revisjon», «Sertifikatsjekk» og «Utløper snart» her, og «Infrastruktur» og «Bygg» i hofstadnet-web, kjøres med
+   «Run workflow» og går grønt. Planen i «Infrastruktur» viser «No changes».
 3. https://hofstad.net, https://www.hofstad.net (videresendes) og https://status.hofstad.net svarer, og DNSSEC
    valideres (`delegationSigned` i https://rdap.org/domain/hofstad.net).
 4. Nye utløpsdatoer for alle tokenene står i `expiry.json`.

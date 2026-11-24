@@ -1,4 +1,4 @@
-name: Audit
+name: Revisjon
 
 # Kontrollerer hver mandag at organisasjonen og repoene følger github.json, med samme sammenligning som
 # scripts/apply-settings.mjs: innstillinger i organisasjonen og repoene, team og tilganger, apper, regelsett og påkrevde

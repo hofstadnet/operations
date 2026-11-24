@@ -163,7 +163,6 @@
       "rules": {
         "deletion": {},
         "non_fast_forward": {},
-        "required_signatures": {},
         "pull_request": {
           "required_approving_review_count": 0,
           "dismiss_stale_reviews_on_push": true,

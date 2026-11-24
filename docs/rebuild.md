@@ -41,6 +41,7 @@ lagret utenfor tjenestene, og innloggingen i passordbehandleren.
      | App | Rettigheter | Repoer |
      |---|---|---|
      | HofstadNET Audit (egen app) | Administration, Organization administration og Members (lese) | alle |
+     | HofstadNET Status (egen app) | Contents og Issues (skrive). Upptime skriver til `main` med den, og den er unntatt fra regelsettet | status |
      | Cloudflare Workers and Pages | Installeres fra Cloudflare når Workers Builds kobles til (steg 4) | hofstadnet-web |
      | Claude, ChatGPT Codex Connector | Installeres fra tjenestene | alle (til gjennomgang) |
      | Cursor | Installeres fra tjenesten | utvalgte |
@@ -89,15 +90,16 @@ Alle lages av eieren og lagres også i passordbehandleren. Navnene står i `gith
 
 | Repo | Hvor | Navn | Kilde |
 |---|---|---|---|
-| hofstadnet-web | repoet | `CLOUDFLARE_API_TOKEN` | Cloudflare, kontotokenet `hofstadnet-tofu` |
+| hofstadnet-web | repoet | `CLOUDFLARE_API_TOKEN_READ` | Cloudflare, kontotokenet `hofstadnet-tofu-read` (bare lesing, for plan og drift) |
 | hofstadnet-web | repoet | `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | Cloudflare R2, tokenet `hofstadnet-tofu-state` |
 | hofstadnet-web | repoet | `TOFU_STATE_PASSPHRASE` | Passordbehandleren (krypterer state) |
 | hofstadnet-web | repoet | `ALERT_EMAIL` | Adressen for varsler fra Cloudflare, fra passordbehandleren |
 | hofstadnet-web | repoet (variabel) | `TOFU_ENABLED` = `true` | Slår på plan og apply |
-| hofstadnet-web | miljøet `cloudflare` | (ingen hemmeligheter) | Godkjenning av apply: teamet `maintainers`, bare `main` |
+| hofstadnet-web | miljøet `cloudflare` | `CLOUDFLARE_API_TOKEN` | Cloudflare, kontotokenet `hofstadnet-tofu`. Bare apply, etter godkjenning fra teamet `maintainers`, bare `main` |
 | status | miljøet `github-pages` | (ingen) | Bare grenen `gh-pages` |
-| status | miljøet `status` | (ingen ennå) | For en egen GitHub-app for Upptime, bare `main` |
-| operations | repoet (variabel) | `AUDIT_APP_CLIENT_ID` | HofstadNET Audit, Client ID |
+| status | miljøet `status` (variabel) | `STATUS_APP_ID` | HofstadNET Status, App ID |
+| status | miljøet `status` | `STATUS_APP_PRIVATE_KEY` | HofstadNET Status, privat nøkkel (`.pem`), bare `main` |
+| operations | repoet (variabel) | `AUDIT_APP_CLIENT_ID` | HofstadNET Audit, App ID eller Client ID |
 | operations | miljøet `audit` | `AUDIT_APP_PRIVATE_KEY` | HofstadNET Audit, privat nøkkel (`.pem`) |
 
 Byggetokenet `hofstadnet-web-builds` ligger i Cloudflare, ikke i GitHub.

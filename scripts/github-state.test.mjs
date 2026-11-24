@@ -162,8 +162,9 @@ test("github.json i repoet er gyldig, og standardverdiene slås sammen riktig", 
   assert.equal(web.security.private_vulnerability_reporting, true);
   assert.equal(web.security.code_security_configuration, "hofstadnet-org-config-1");
   const status = expandRepo(config, "status").rulesets["Main protection"];
-  assert.deepEqual(Object.keys(status.rules), ["deletion", "non_fast_forward"]);
-  assert.equal(status.extends, undefined);
+  assert.deepEqual(Object.keys(status.rules), ["deletion", "non_fast_forward", "pull_request", "required_status_checks", "code_scanning"]);
+  assert.deepEqual(status.bypass_actors, [{ role: "admin", mode: "pull_request" }, { app: "hofstadnet-status", mode: "always" }]);
+  assert.equal(web.environments.cloudflare.secrets[0], "CLOUDFLARE_API_TOKEN");
   const dotgithub = expandRepo(config, ".github").rulesets["Main protection"];
   assert.deepEqual(dotgithub.rules.required_status_checks.required_status_checks, ["dependency-review", "workflow-security"]);
   assert.ok(dotgithub.rules.code_scanning);

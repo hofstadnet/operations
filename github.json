@@ -66,6 +66,10 @@
       "hofstadnet-audit": {
         "repository_selection": "all",
         "permissions": { "administration": "read", "members": "read", "metadata": "read", "organization_administration": "read" }
+      },
+      "hofstadnet-status": {
+        "repository_selection": "selected",
+        "permissions": { "contents": "write", "issues": "write", "metadata": "read" }
       }
     },
     "variables": {},
@@ -198,11 +202,12 @@
         }
       },
       "variables": { "TOFU_ENABLED": "true" },
-      "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"],
+      "secrets": ["ALERT_EMAIL", "CLOUDFLARE_API_TOKEN_READ", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "TOFU_STATE_PASSPHRASE"],
       "environments": {
         "cloudflare": {
           "reviewers": [{ "team": "maintainers" }],
-          "prevent_self_review": false
+          "prevent_self_review": false,
+          "secrets": ["CLOUDFLARE_API_TOKEN"]
         }
       },
       "manual": [
@@ -216,18 +221,17 @@
       },
       "rulesets": {
         "Main protection": {
-          "_about": "Upptime skriver direkte til main, så regelsettet stopper bare sletting og force-push, og bygger ikke på malen.",
-          "extends": false,
-          "target": "branch",
-          "enforcement": "active",
-          "conditions": { "ref_name": { "include": ["~DEFAULT_BRANCH"], "exclude": [] } },
-          "bypass_actors": [],
-          "rules": { "deletion": {}, "non_fast_forward": {} }
+          "_about": "Upptime skriver direkte til main med tokenet fra appen hofstadnet-status, som derfor er unntatt. Alle andre endringer går via pull request.",
+          "extends": "main",
+          "bypass_actors": [{ "role": "admin", "mode": "pull_request" }, { "app": "hofstadnet-status", "mode": "always" }]
         }
       },
       "environments": {
         "github-pages": { "branches": ["gh-pages"] },
-        "status": {}
+        "status": {
+          "variables": { "STATUS_APP_ID": "5899832" },
+          "secrets": ["STATUS_APP_PRIVATE_KEY"]
+        }
       },
       "pages": {
         "build_type": "legacy",
@@ -236,7 +240,7 @@
         "https_enforced": true
       },
       "manual": [
-        "Miljøet status er for en egen GitHub-app for Upptime (bare main): app-ID-en blir en variabel og nøkkelen en hemmelighet i miljøet, og står her når appen finnes.",
+        "Appen hofstadnet-status (HofstadNET Status) må være installert bare på status, med Contents og Issues: write.",
         "Egen 404-side for Pages (custom_404) kommer fra innholdet i gh-pages og settes ikke med API-et."
       ]
     },
@@ -289,11 +293,12 @@
           }
         }
       },
+      "variables": { "AUDIT_APP_CLIENT_ID": "5899742" },
       "environments": {
         "audit": { "secrets": ["AUDIT_APP_PRIVATE_KEY"] }
       },
       "manual": [
-        "Appen hofstadnet-audit (HofstadNET Audit) må være installert på alle repoene (All repositories), så nye repoer også kontrolleres. Client ID settes som repovariabelen AUDIT_APP_CLIENT_ID, og legges da inn under «variables» her."
+        "Appen hofstadnet-audit (HofstadNET Audit) må være installert på alle repoene (All repositories), så nye repoer også kontrolleres."
       ]
     }
   }

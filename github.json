@@ -196,7 +196,7 @@
             "pull_request": { "dismiss_stale_reviews_on_push": false },
             "required_status_checks": {
               "strict_required_status_checks_policy": true,
-              "required_status_checks": ["build", "dependency-review", "workflow-security"]
+              "required_status_checks": ["build", "accessibility", "lighthouse", "dependency-review", "workflow-security"]
             }
           }
         }

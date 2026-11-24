@@ -41,7 +41,7 @@ bare endringene merket «endres». Plassholdere som `${team:maintainers}` slås 
 flowchart LR
   cron["Mandager, eller Run workflow"] --> job["audit-jobben<br/>bare når AUDIT_APP_CLIENT_ID er satt"]
   env["Miljøet audit<br/>bare main<br/>AUDIT_APP_PRIVATE_KEY"] --> token
-  job --> token["create-github-app-token<br/>Administration, Organization administration, Members: lese"]
+  job --> token["create-github-app-token<br/>Administration, Environments, Pages, Secrets (navn), Variables,<br/>Organization administration, Members: lese"]
   token --> audit["audit.mjs<br/>readLive + diff, uten hemmeligheter, variabler og Pages"]
   audit -->|"avvik"| issue["Saken «Avvik i grunnoppsettet»<br/>opprettes eller oppdateres med GITHUB_TOKEN"]
   audit -->|"ingen avvik"| close["Saken lukkes"]

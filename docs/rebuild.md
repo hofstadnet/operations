@@ -40,11 +40,11 @@ lagret utenfor tjenestene, og innloggingen i passordbehandleren.
 
      | App | Rettigheter | Repoer |
      |---|---|---|
-     | HofstadNET Audit (egen app) | Administration, Organization administration og Members (lese) | alle |
+     | HofstadNET Audit (egen app) | Administration, Environments, Pages, Secrets, Variables, Organization administration og Members (lese) | alle |
      | HofstadNET Status (egen app) | Contents og Issues (skrive). Upptime skriver til `main` med den, og den er unntatt fra regelsettet | status |
      | Cloudflare Workers and Pages | Installeres fra Cloudflare når Workers Builds kobles til (steg 4) | hofstadnet-web |
      | Claude, ChatGPT Codex Connector | Installeres fra tjenestene | alle (til gjennomgang) |
-     | Cursor | Installeres fra tjenesten | utvalgte |
+     | Cursor | Installeres fra tjenesten | alle (til gjennomgang) |
 
      HofstadNET Audit lages etter [README](../README.md#audit-appen).
    - Verifisert domene for Pages (`hofstad.net`): Settings → Pages → Verified domains. TXT-posten står i `infra/` i

@@ -104,8 +104,9 @@ Auditen leser innstillinger i hvert repo, noe `GITHUB_TOKEN` ikke kan. Den bruke
 
 1. hofstadnet → Settings → Developer settings → GitHub Apps → New GitHub App. Navn «HofstadNET Audit», hjemmeside
    `https://github.com/hofstadnet`, Webhook «Active» av, «Only on this account».
-   Repository permissions: Administration = Read-only (Metadata = Read-only legges til). Organization permissions:
-   Administration = Read-only, Members = Read-only. Ingenting annet.
+   Repository permissions, alle Read-only: Administration, Environments, Pages, Secrets og Variables (Metadata legges
+   til). Organization permissions: Administration = Read-only, Members = Read-only. Ingenting annet. Secrets gir bare
+   navnene, aldri verdiene.
 2. På siden til appen: noter **Client ID**, og velg «Generate a private key».
 3. «Install App» → hofstadnet → «All repositories», så nye repoer også sjekkes.
 4. I dette repoet → Settings → Secrets and variables → Actions → Variables: `AUDIT_APP_CLIENT_ID` (Client ID). Legg

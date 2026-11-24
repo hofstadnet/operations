@@ -127,9 +127,10 @@ merknad i saken. De kontrolleres når en eier kjører `node scripts/apply-settin
 
 ## Sjekker
 
-Regelsettet «Main protection» på `main` krever pull request, stopper force-push og sletting, og krever sjekkene
-`validate`, `dependency-review` og `workflow-security`, og at CodeQL ikke har funn på high eller høyere. Det står i
-`github.json` og settes med `scripts/apply-settings.mjs`.
+Regelsettet «Main protection» på `main` krever pull request og signerte commits, stopper force-push og sletting, og
+krever sjekkene `validate`, `dependency-review` og `workflow-security`, og at CodeQL ikke har funn på high eller høyere.
+Det står i `github.json` og settes med `scripts/apply-settings.mjs`. Squash og vanlig merge signeres av GitHub, og det
+gjør også commits fra Dependabot. «Rebase and merge» kan ikke brukes, fordi GitHub ikke signerer de nye commitene.
 
 ```bash
 node --test scripts/*.test.mjs                 # testene for sammenligningen, uten nettverk

@@ -162,7 +162,7 @@ test("github.json i repoet er gyldig, og standardverdiene slås sammen riktig", 
   assert.equal(web.security.private_vulnerability_reporting, true);
   assert.equal(web.security.code_security_configuration, "hofstadnet-org-config-1");
   const status = expandRepo(config, "status").rulesets["Main protection"];
-  assert.deepEqual(Object.keys(status.rules), ["deletion", "non_fast_forward", "pull_request", "required_status_checks", "code_scanning"]);
+  assert.deepEqual(Object.keys(status.rules), ["deletion", "non_fast_forward", "required_signatures", "pull_request", "required_status_checks", "code_scanning"]);
   assert.deepEqual(status.bypass_actors, [{ role: "admin", mode: "pull_request" }, { app: "hofstadnet-status", mode: "always" }]);
   assert.ok(web.environments.cloudflare.secrets.includes("CLOUDFLARE_API_TOKEN"));
   assert.ok(!web.environments["tofu-plan"].secrets.includes("CLOUDFLARE_API_TOKEN"));
